@@ -2,10 +2,12 @@ import { z } from 'zod';
 
 export const ApplicationNamespaceSchema = z
   .string()
+  .min(1)
   .describe(
-    `The namespace of the application.
-     Note that this may differ from the namespace of individual resources.
-     Make sure to verify the application namespace in the Application resource — it is often argocd, but not always.`
+    `The namespace where the ArgoCD application resource will be created.
+     This is the namespace of the Application resource itself, not the destination namespace for the application's resources.
+     You can specify any valid Kubernetes namespace (e.g., 'argocd', 'argocd-apps', 'my-namespace', etc.).
+     The default ArgoCD namespace is typically 'argocd', but you can use any namespace you prefer.`
   );
 
 export const ResourceRefSchema = z.object({
@@ -51,7 +53,7 @@ export const ApplicationSchema = z.object({
       name: z.string().optional()
     })
       .refine(
-        data =>
+        (data: { server?: string; name?: string }) =>
           (!data.server && !!data.name) || (!!data.server && !data.name),
         {
           message: "Only one of server or name must be specified in destination"

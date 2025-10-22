@@ -64,9 +64,11 @@ export class ArgoCDClient {
     };
   }
 
-  public async getApplication(applicationName: string) {
+  public async getApplication(applicationName: string, appNamespace?: string) {
+    const queryParams = appNamespace ? { appNamespace } : undefined;
     const { body } = await this.client.get<V1alpha1Application>(
-      `/api/v1/applications/${applicationName}`
+      `/api/v1/applications/${applicationName}`,
+      queryParams
     );
     return body;
   }
@@ -89,16 +91,65 @@ export class ArgoCDClient {
     return body;
   }
 
-  public async deleteApplication(applicationName: string) {
+  public async deleteApplication(
+    applicationName: string, 
+    options?: {
+      appNamespace?: string;
+      cascade?: boolean;
+      propagationPolicy?: string;
+    }
+  ) {
+    const queryParams: any = {};
+    
+    if (options?.appNamespace) {
+      queryParams.appNamespace = options.appNamespace;
+    }
+    if (options?.cascade !== undefined) {
+      queryParams.cascade = options.cascade;
+    }
+    if (options?.propagationPolicy) {
+      queryParams.propagationPolicy = options.propagationPolicy;
+    }
+
     const { body } = await this.client.delete<V1alpha1Application>(
-      `/api/v1/applications/${applicationName}`
+      `/api/v1/applications/${applicationName}`,
+      Object.keys(queryParams).length > 0 ? queryParams : undefined
     );
     return body;
   }
 
-  public async syncApplication(applicationName: string) {
+  public async syncApplication(
+    applicationName: string, 
+    options?: {
+      appNamespace?: string;
+      dryRun?: boolean;
+      prune?: boolean;
+      revision?: string;
+      syncOptions?: string[];
+    }
+  ) {
+    const syncRequest: any = {};
+    
+    if (options?.appNamespace) {
+      syncRequest.appNamespace = options.appNamespace;
+    }
+    if (options?.dryRun !== undefined) {
+      syncRequest.dryRun = options.dryRun;
+    }
+    if (options?.prune !== undefined) {
+      syncRequest.prune = options.prune;
+    }
+    if (options?.revision) {
+      syncRequest.revision = options.revision;
+    }
+    if (options?.syncOptions) {
+      syncRequest.syncOptions = options.syncOptions;
+    }
+
     const { body } = await this.client.post<V1alpha1Application, V1alpha1Application>(
-      `/api/v1/applications/${applicationName}/sync`
+      `/api/v1/applications/${applicationName}/sync`,
+      null,
+      Object.keys(syncRequest).length > 0 ? syncRequest : undefined
     );
     return body;
   }
