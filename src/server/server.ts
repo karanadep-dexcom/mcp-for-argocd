@@ -68,11 +68,11 @@ export class Server extends McpServer {
     this.addJsonOutputTool(
       'get_application',
       'get_application returns application by application name. Optionally specify the application namespace to get applications from non-default namespaces.',
-      { 
+      {
         applicationName: z.string(),
         applicationNamespace: ApplicationNamespaceSchema.optional()
       },
-      async ({ applicationName, applicationNamespace }) => 
+      async ({ applicationName, applicationNamespace }) =>
         await this.argocdClient.getApplication(applicationName, applicationNamespace)
     );
     this.addJsonOutputTool(
@@ -200,41 +200,71 @@ export class Server extends McpServer {
       this.addJsonOutputTool(
         'delete_application',
         'delete_application deletes application. Specify applicationNamespace if the application is in a non-default namespace to avoid permission errors.',
-        { 
+        {
           applicationName: z.string(),
-          applicationNamespace: ApplicationNamespaceSchema.optional().describe('The namespace where the application is located. Required if application is not in the default namespace.'),
-          cascade: z.boolean().optional().describe('Whether to cascade the deletion to child resources'),
-          propagationPolicy: z.string().optional().describe('Deletion propagation policy (e.g., "Foreground", "Background", "Orphan")')
+          applicationNamespace: ApplicationNamespaceSchema.optional().describe(
+            'The namespace where the application is located. Required if application is not in the default namespace.'
+          ),
+          cascade: z
+            .boolean()
+            .optional()
+            .describe('Whether to cascade the deletion to child resources'),
+          propagationPolicy: z
+            .string()
+            .optional()
+            .describe('Deletion propagation policy (e.g., "Foreground", "Background", "Orphan")')
         },
         async ({ applicationName, applicationNamespace, cascade, propagationPolicy }) => {
-          const options: any = {};
+          const options: Record<string, string | boolean> = {};
           if (applicationNamespace) options.appNamespace = applicationNamespace;
           if (cascade !== undefined) options.cascade = cascade;
           if (propagationPolicy) options.propagationPolicy = propagationPolicy;
-          
-          return await this.argocdClient.deleteApplication(applicationName, Object.keys(options).length > 0 ? options : undefined);
+
+          return await this.argocdClient.deleteApplication(
+            applicationName,
+            Object.keys(options).length > 0 ? options : undefined
+          );
         }
       );
       this.addJsonOutputTool(
         'sync_application',
         'sync_application syncs application. Specify applicationNamespace if the application is in a non-default namespace to avoid permission errors.',
-        { 
+        {
           applicationName: z.string(),
-          applicationNamespace: ApplicationNamespaceSchema.optional().describe('The namespace where the application is located. Required if application is not in the default namespace.'),
-          dryRun: z.boolean().optional().describe('Perform a dry run sync without applying changes'),
-          prune: z.boolean().optional().describe('Remove resources that are no longer defined in the source'),
-          revision: z.string().optional().describe('Sync to a specific revision instead of the latest'),
-          syncOptions: z.array(z.string()).optional().describe('Additional sync options (e.g., ["CreateNamespace=true", "PrunePropagationPolicy=foreground"])')
+          applicationNamespace: ApplicationNamespaceSchema.optional().describe(
+            'The namespace where the application is located. Required if application is not in the default namespace.'
+          ),
+          dryRun: z
+            .boolean()
+            .optional()
+            .describe('Perform a dry run sync without applying changes'),
+          prune: z
+            .boolean()
+            .optional()
+            .describe('Remove resources that are no longer defined in the source'),
+          revision: z
+            .string()
+            .optional()
+            .describe('Sync to a specific revision instead of the latest'),
+          syncOptions: z
+            .array(z.string())
+            .optional()
+            .describe(
+              'Additional sync options (e.g., ["CreateNamespace=true", "PrunePropagationPolicy=foreground"])'
+            )
         },
         async ({ applicationName, applicationNamespace, dryRun, prune, revision, syncOptions }) => {
-          const options: any = {};
+          const options: Record<string, string | boolean | string[]> = {};
           if (applicationNamespace) options.appNamespace = applicationNamespace;
           if (dryRun !== undefined) options.dryRun = dryRun;
           if (prune !== undefined) options.prune = prune;
           if (revision) options.revision = revision;
           if (syncOptions) options.syncOptions = syncOptions;
-          
-          return await this.argocdClient.syncApplication(applicationName, Object.keys(options).length > 0 ? options : undefined);
+
+          return await this.argocdClient.syncApplication(
+            applicationName,
+            Object.keys(options).length > 0 ? options : undefined
+          );
         }
       );
       this.addJsonOutputTool(

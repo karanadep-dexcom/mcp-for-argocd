@@ -92,15 +92,15 @@ export class ArgoCDClient {
   }
 
   public async deleteApplication(
-    applicationName: string, 
+    applicationName: string,
     options?: {
       appNamespace?: string;
       cascade?: boolean;
       propagationPolicy?: string;
     }
   ) {
-    const queryParams: any = {};
-    
+    const queryParams: Record<string, string | boolean> = {};
+
     if (options?.appNamespace) {
       queryParams.appNamespace = options.appNamespace;
     }
@@ -119,7 +119,7 @@ export class ArgoCDClient {
   }
 
   public async syncApplication(
-    applicationName: string, 
+    applicationName: string,
     options?: {
       appNamespace?: string;
       dryRun?: boolean;
@@ -128,8 +128,8 @@ export class ArgoCDClient {
       syncOptions?: string[];
     }
   ) {
-    const syncRequest: any = {};
-    
+    const syncRequest: Record<string, string | boolean | string[]> = {};
+
     if (options?.appNamespace) {
       syncRequest.appNamespace = options.appNamespace;
     }
